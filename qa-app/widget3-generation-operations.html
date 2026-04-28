@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>QA Analyzer — Widget 3: Generation & Operations</title><style>
+:root{--bg1:#fff;--bg2:#f5f4f0;--bg3:#eeede8;--bgi:#e6f1fb;--bgs:#eaf3de;--bgw:#faeeda;--bgd:#fcebeb;
+--tx1:#1a1915;--tx2:#6b6966;--txi:#185fa5;--txs:#3b6d11;--txw:#633806;--txd:#791f1f;
+--bdr:rgba(0,0,0,.12);--bds:rgba(0,0,0,.22);--rm:8px;--rl:12px;
+--fs:system-ui,-apple-system,sans-serif;--fm:'Menlo','Monaco','Courier New',monospace}
+@media(prefers-color-scheme:dark){:root{
+--bg1:#1e1e1c;--bg2:#2a2a27;--bg3:#242422;--bgi:#0c2340;--bgs:#122208;--bgw:#2a1a04;--bgd:#2a0c0c;
+--tx1:#f0ede8;--tx2:#9e9b96;--txi:#79b8f7;--txs:#86c653;--txw:#f0a050;--txd:#f47272;
+--bdr:rgba(255,255,255,.12);--bds:rgba(255,255,255,.22)}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--fs);font-size:13px;color:var(--tx1);background:var(--bg3)}
+.shell{display:flex;height:100vh;min-height:600px}
+.side{width:190px;flex-shrink:0;background:var(--bg1);border-right:.5px solid var(--bdr);display:flex;flex-direction:column;overflow-y:auto}
+.logo{padding:14px 16px;border-bottom:.5px solid var(--bdr)}
+.logo-t{font-size:13px;font-weight:500}.logo-s{font-size:11px;color:var(--tx2);margin-top:2px}
+.nl{font-size:10px;font-weight:500;color:var(--tx2);padding:8px 16px 2px;letter-spacing:.04em}
+.nv{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:12px;color:var(--tx2);cursor:pointer;border:none;background:none;width:100%;text-align:left;transition:background .1s}
+.nv:hover{background:var(--bg2);color:var(--tx1)}.nv.on{background:var(--bgi);color:var(--txi);font-weight:500}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+.main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.topbar{background:var(--bg1);border-bottom:.5px solid var(--bdr);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:10}
+.topbar-t{font-size:14px;font-weight:500}
+.content{flex:1;overflow-y:auto;padding:18px 20px}
+.panel{display:none}.panel.on{display:block}
+.card{background:var(--bg1);border:.5px solid var(--bdr);border-radius:var(--rl);padding:16px;margin-bottom:14px}
+.card-t{font-size:13px;font-weight:500;margin-bottom:12px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.mc{background:var(--bg2);border-radius:var(--rm);padding:12px}
+.mc-l{font-size:11px;color:var(--tx2);margin-bottom:3px}.mc-v{font-size:20px;font-weight:500}
+.bx{font-size:10px;padding:3px 8px;border-radius:99px;font-weight:500;white-space:nowrap;display:inline-block}
+.bi{background:var(--bgi);color:var(--txi)}.bs{background:var(--bgs);color:var(--txs)}
+.bw{background:var(--bgw);color:var(--txw)}.bd{background:var(--bgd);color:var(--txd)}
+.inp{width:100%;border:.5px solid var(--bdr);border-radius:var(--rm);padding:8px 10px;font-size:12px;font-family:var(--fs);color:var(--tx1);background:var(--bg2)}
+.ta{width:100%;border:.5px solid var(--bdr);border-radius:var(--rm);padding:8px 10px;font-size:12px;font-family:var(--fs);color:var(--tx1);background:var(--bg2);resize:vertical;min-height:80px}
+.ta-m{font-family:var(--fm);font-size:11px}
+.btn{border:.5px solid var(--bds);border-radius:var(--rm);padding:7px 14px;font-size:12px;cursor:pointer;background:transparent;color:var(--tx1)}
+.btn:hover{background:var(--bg2)}.btn-p{background:var(--txi);color:#fff;border-color:transparent}
+.btn-p:hover{opacity:.88}.btn-sm{padding:4px 10px;font-size:11px}
+.row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:.5px solid var(--bdr);font-size:12px}
+.row:last-child{border-bottom:none}
+.fl{font-size:11px;color:var(--tx2);margin-bottom:4px}.fld{margin-bottom:10px}
+.sb{background:var(--bg2);border-radius:var(--rm);padding:12px;font-size:11px;line-height:1.75;color:var(--tx1);min-height:60px;white-space:pre-wrap;font-family:var(--fm)}
+.tag{font-size:10px;padding:2px 7px;border-radius:99px;font-weight:500;white-space:nowrap}
+.chip{display:inline-flex;align-items:center;font-size:11px;padding:3px 8px;border-radius:99px;border:.5px solid var(--bds);color:var(--tx2);margin:2px;cursor:pointer}
+.divider{height:.5px;background:var(--bdr);margin:12px 0}
+.empty{font-size:12px;color:var(--tx2);padding:20px 0;text-align:center}
+</style></head><body>
+<div id="api-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:9999">
+<div style="background:var(--bg1);border-radius:var(--rl);padding:24px;width:400px;border:.5px solid var(--bdr)">
+<div style="font-size:15px;font-weight:500;margin-bottom:8px">Enter Anthropic API key</div>
+<div style="font-size:12px;color:var(--tx2);margin-bottom:14px">Stored in memory only. Sent exclusively to api.anthropic.com.</div>
+<input type="password" id="modal-key" placeholder="sk-ant-..." style="width:100%;border:.5px solid var(--bdr);border-radius:var(--rm);padding:10px;font-size:13px;color:var(--tx1);background:var(--bg2);margin-bottom:10px"/>
+<button onclick="setKey()" style="width:100%;background:var(--txi);color:#fff;border:none;padding:10px;border-radius:var(--rm);font-size:13px;font-weight:500;cursor:pointer">Continue &#8594;</button>
+<div id="modal-err" style="color:var(--txd);font-size:12px;margin-top:6px"></div>
+</div></div>
+<div class="shell">
+<div class="side">
+  <div class="logo"><div class="logo-t">QA Analyzer</div><div class="logo-s">Widget 3 — Generation</div></div>
+  <div class="nl">Generation</div>
+  <button class="nv on" onclick="sw('tcgen',T)"><div class="dot"></div>Test case gen</button>
+  <button class="nv" onclick="sw('datagen',T)"><div class="dot"></div>Test data gen</button>
+  <button class="nv" onclick="sw('scriptgen',T)"><div class="dot"></div>Script gen</button>
+  <div class="nl">Intelligence</div>
+  <button class="nv" onclick="sw('defect',T)"><div class="dot"></div>Defect predictor</button>
+  <button class="nv" onclick="sw('analytics',T)"><div class="dot"></div>Analytics</button>
+  <div class="nl">Operations</div>
+  <button class="nv" onclick="sw('pipeline',T)"><div class="dot"></div>Pipeline monitor</button>
+  <button class="nv" onclick="sw('notifications',T)"><div class="dot"></div>Notifications</button>
+  <button class="nv" onclick="sw('report',T)"><div class="dot"></div>Executive report</button>
+</div>
+<div class="main">
+<div class="topbar"><span class="topbar-t" id="tb">Test case generator</span><span class="bx bs">Widget 3</span></div>
+<div class="content">
+
+<div class="panel on" id="p-tcgen">
+  <div class="g4" style="margin-bottom:14px">
+    <div class="mc"><div class="mc-l">Generated</div><div class="mc-v" id="tc-total">0</div></div>
+    <div class="mc"><div class="mc-l">Happy paths</div><div class="mc-v" id="tc-h">0</div></div>
+    <div class="mc"><div class="mc-l">Negative</div><div class="mc-v" id="tc-n">0</div></div>
+    <div class="mc"><div class="mc-l">Boundary</div><div class="mc-v" id="tc-b">0</div></div>
+  </div>
+  <div class="card"><div class="card-t">Test case generator</div>
+    <div class="fld"><div class="fl">Requirement or user story</div>
+      <textarea class="ta" id="tc-in" style="min-height:80px" placeholder="As a user, I want to reset my password via email.&#10;Acceptance criteria:&#10;- Link expires in 60 minutes&#10;- One-time use only&#10;- Confirmation email sent on success"></textarea>
+    </div>
+    <div class="g3">
+      <div class="fld"><div class="fl">Test type</div><select class="inp" id="tc-type"><option>Functional</option><option>Integration</option><option>E2E</option><option>Regression</option><option>Smoke</option><option>Performance</option></select></div>
+      <div class="fld"><div class="fl">Coverage level</div><select class="inp" id="tc-cov"><option>Basic (happy + negative)</option><option>Standard (+ boundary)</option><option>Exhaustive (all variants)</option></select></div>
+      <div class="fld"><div class="fl">Format</div><select class="inp" id="tc-fmt"><option>Step-by-step</option><option>Gherkin BDD</option><option>Table-driven</option></select></div>
+    </div>
+    <button class="btn btn-p" onclick="runTCGen()" style="width:100%">Generate test cases &#8599;</button>
+  </div>
+  <div class="card" id="tc-res" style="display:none"><div class="card-t">Generated test cases</div><div id="tc-list"></div><div class="sb" id="tc-stream" style="display:none;margin-top:10px"></div></div>
+</div>
+
+<div class="panel" id="p-datagen">
+  <div class="card"><div class="card-t">Test data generator</div>
+    <div class="g2">
+      <div>
+        <div class="fld"><div class="fl">Describe the data entity</div>
+          <textarea class="ta" id="dg-in" placeholder="User registration: name (required, 2-50 chars), email (valid format), password (min 8 chars, 1 uppercase, 1 number), date of birth (must be 18+), phone (optional, E.164)"></textarea>
+        </div>
+        <div class="fld"><div class="fl">Categories to generate</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">
+            <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="checkbox" id="dg-v" checked> Valid</label>
+            <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="checkbox" id="dg-i" checked> Invalid</label>
+            <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="checkbox" id="dg-b" checked> Boundary</label>
+            <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="checkbox" id="dg-n" checked> Null/empty</label>
+            <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="checkbox" id="dg-s"> SQL injection</label>
+            <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="checkbox" id="dg-x"> XSS payloads</label>
+          </div>
+        </div>
+        <div class="fld"><div class="fl">Output format</div><select class="inp" id="dg-fmt"><option>JSON</option><option>CSV</option><option>SQL INSERT</option><option>Python dict</option></select></div>
+        <button class="btn btn-p" onclick="runDataGen()" style="width:100%">Generate test data &#8599;</button>
+      </div>
+      <div><div class="fl" style="margin-bottom:6px">Generated data</div><div class="sb" id="dg-out" style="min-height:200px">Run generation to see test data here.</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="panel" id="p-scriptgen">
+  <div class="card"><div class="card-t">Automation script generator</div>
+    <div class="fld"><div class="fl">Test case description</div>
+      <textarea class="ta" id="sg-in" placeholder="TC-001: Verify user login with valid credentials&#10;Steps: Navigate to /login, enter email test@example.com, password Test@1234, click Login&#10;Expected: Redirected to /dashboard, session cookie set"></textarea>
+    </div>
+    <div class="g3">
+      <div class="fld"><div class="fl">Framework</div><select class="inp" id="sg-fw"><option>Playwright (Python)</option><option>Selenium (Python)</option><option>Cypress (JS)</option><option>Playwright (JS)</option><option>Pytest + Requests</option></select></div>
+      <div class="fld"><div class="fl">Pattern</div><select class="inp" id="sg-pat"><option>Page Object Model</option><option>BDD (behave/cucumber)</option><option>Data-driven</option><option>Keyword-driven</option></select></div>
+      <div class="fld"><div class="fl">Include</div><select class="inp" id="sg-inc"><option>Full test + fixtures</option><option>Test only</option><option>Page object only</option></select></div>
+    </div>
+    <button class="btn btn-p" onclick="runScript()" style="width:100%">Generate automation script &#8599;</button>
+  </div>
+  <div class="card" id="sg-res" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="card-t" style="margin:0">Generated script</div>
+      <button class="btn btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('sg-out').textContent).catch(()=>{})">Copy</button>
+    </div>
+    <div class="sb" id="sg-out" style="min-height:180px"></div>
+  </div>
+</div>
+
+<div class="panel" id="p-defect">
+  <div class="g4" style="margin-bottom:14px">
+    <div class="mc"><div class="mc-l">High-risk areas</div><div class="mc-v" id="dp-h">—</div></div>
+    <div class="mc"><div class="mc-l">Predicted defects</div><div class="mc-v" id="dp-t">—</div></div>
+    <div class="mc"><div class="mc-l">Avg probability</div><div class="mc-v" id="dp-a">—</div></div>
+    <div class="mc"><div class="mc-l">Critical paths</div><div class="mc-v" id="dp-c">—</div></div>
+  </div>
+  <div class="card"><div class="card-t">Defect predictor</div>
+    <textarea class="ta" id="dp-in" placeholder="Payment processing module: Stripe tokenization, split payments, discount codes, regional tax, receipts. Integrates with inventory and order management."></textarea>
+    <div class="g2" style="margin-top:10px">
+      <div class="fld"><div class="fl">Complexity</div><select class="inp" id="dp-cx"><option>Low</option><option selected>Medium</option><option>High</option><option>Very high</option></select></div>
+      <div class="fld"><div class="fl">Historical defect rate</div><select class="inp" id="dp-hr"><option>No history</option><option>Low (&lt;5%)</option><option selected>Medium (5-15%)</option><option>High (&gt;15%)</option></select></div>
+    </div>
+    <button class="btn btn-p" onclick="runDefect()" style="width:100%">Predict defect hotspots &#8599;</button>
+  </div>
+  <div class="card" id="dp-res" style="display:none"><div class="card-t">Hotspot analysis</div><div id="dp-list"></div><div class="sb" id="dp-stream" style="display:none;margin-top:10px"></div></div>
+</div>
+
+<div class="panel" id="p-analytics">
+  <div class="g4" style="margin-bottom:14px">
+    <div class="mc"><div class="mc-l">Total requirements</div><div class="mc-v">24</div><div style="font-size:11px;color:var(--tx2);margin-top:2px">+6 this sprint</div></div>
+    <div class="mc"><div class="mc-l">Avg quality score</div><div class="mc-v">78%</div><div style="font-size:11px;color:var(--tx2);margin-top:2px">+4% vs last</div></div>
+    <div class="mc"><div class="mc-l">Test coverage</div><div class="mc-v">83%</div><div style="font-size:11px;color:var(--tx2);margin-top:2px">3 gaps remain</div></div>
+    <div class="mc"><div class="mc-l">Open defects</div><div class="mc-v">7</div><div style="font-size:11px;color:var(--tx2);margin-top:2px">2 critical</div></div>
+  </div>
+  <div class="card"><div class="card-t">Coverage by type</div>
+    ${[['Functional','90','#378ADD'],['Security','72','#D85A30'],['Performance','55','#BA7517'],['Integration','81','#1D9E75'],['Accessibility','43','#7F77DD']].map(([l,p,c])=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:6px 0"><span style="font-size:12px;color:var(--tx2);min-width:110px">${l}</span><div style="flex:1;height:6px;background:var(--bg2);border-radius:99px;overflow:hidden"><div style="width:${p}%;height:100%;background:${c};border-radius:99px"></div></div><span style="font-size:11px;font-weight:500;min-width:32px;text-align:right">${p}%</span></div>`).join('')}
+  </div>
+  <div class="card"><div class="card-t">Risk distribution</div>
+    ${[['Critical','4','bd'],['High','7','bw'],['Medium','9','bi'],['Low','4','bs']].map(([l,n,c])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:.5px solid var(--bdr);font-size:12px"><span style="color:var(--tx2)">${l}</span><span class="bx ${c}">${n} requirements</span></div>`).join('')}
+  </div>
+</div>
+
+<div class="panel" id="p-pipeline">
+  <div class="card"><div class="card-t">Recent pipeline runs</div>
+    ${[['Sprint 6 requirements','24 reqs · 89 scenarios · 18s','#639922','bs','Done'],['Login module v2','6 reqs · 22 scenarios · 11s','#639922','bs','Done'],['Payment BRD (partial)','12 reqs · 3 ambiguities flagged','#BA7517','bw','Warning'],['API spec YAML','Parse error — invalid YAML syntax','#A32D2D','bd','Failed']].map(([t,d,c,b,s])=>`<div style="display:flex;gap:12px;padding:9px 0;border-bottom:.5px solid var(--bdr);align-items:center"><div style="width:9px;height:9px;border-radius:50%;background:${c};flex-shrink:0"></div><div style="flex:1"><div style="font-size:12px;font-weight:500">${t}</div><div style="font-size:11px;color:var(--tx2)">${d}</div></div><span class="bx ${b}">${s}</span></div>`).join('')}
+  </div>
+  <div class="card"><div class="card-t">Throughput metrics</div>
+    ${[['Avg latency (50 reqs)','18.4s'],['LLM token usage today','142,800'],['Success rate (7d)','96.2%'],['Workers active','3 / 5']].map(([l,v])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:.5px solid var(--bdr);font-size:12px"><span style="color:var(--tx2)">${l}</span><span>${v}</span></div>`).join('')}
+  </div>
+</div>
+
+<div class="panel" id="p-notifications">
+  <div class="card"><div class="card-t">Notification center</div>
+    ${[['High-impact change detected','REQ-007 updated — 14 test cases may be invalidated.','#A32D2D','bd','Critical'],['Ambiguity threshold exceeded','8 requirements contain vague terms (fast, soon, many).','#BA7517','bw','Warning'],['Compliance gap found','GDPR Article 17 has no test scenario.','#185FA5','bi','Info'],['Analysis complete','Login module v2: 6 reqs, avg quality 84%.','#639922','bs','Done']].map(([t,d,c,b,s])=>`<div style="display:flex;gap:12px;padding:9px 0;border-bottom:.5px solid var(--bdr);align-items:flex-start"><div style="width:9px;height:9px;border-radius:50%;background:${c};flex-shrink:0;margin-top:3px"></div><div style="flex:1"><div style="font-size:12px;font-weight:500">${t}</div><div style="font-size:11px;color:var(--tx2)">${d}</div></div><span class="bx ${b}">${s}</span></div>`).join('')}
+  </div>
+  <div class="card"><div class="card-t">Alert channels</div>
+    <div class="fld"><div class="fl">Slack webhook URL</div><input class="inp" placeholder="https://hooks.slack.com/..."/></div>
+    <div class="fld"><div class="fl">Email recipients</div><input class="inp" placeholder="qa-team@yourorg.com"/></div>
+    <div class="fld"><div class="fl">Jira auto-comment</div><select class="inp"><option>Disabled</option><option>Critical only</option><option>All changes</option></select></div>
+    <button class="btn btn-p" style="width:100%">Save notification settings</button>
+  </div>
+</div>
+
+<div class="panel" id="p-report">
+  <div class="card"><div class="card-t">Executive report generator</div>
+    <div class="g3">
+      <div class="fld"><div class="fl">Report type</div><select class="inp" id="rpt-t"><option>Executive summary</option><option>Full analysis report</option><option>Sprint QA report</option><option>Compliance audit report</option></select></div>
+      <div class="fld"><div class="fl">Audience</div><select class="inp" id="rpt-a"><option>Executives / stakeholders</option><option>QA team</option><option>Developers</option><option>Auditors</option></select></div>
+      <div class="fld"><div class="fl">Format</div><select class="inp" id="rpt-f"><option>Markdown</option><option>Plain text</option></select></div>
+    </div>
+    <textarea class="ta" id="rpt-ctx" placeholder="Optional context: project name, sprint number, key decisions, concerns to highlight..."></textarea>
+    <button class="btn btn-p" onclick="runReport()" style="width:100%;margin-top:10px">Generate executive report &#8599;</button>
+  </div>
+  <div class="card" id="rpt-res" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="card-t" style="margin:0">Report</div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('rpt-out').textContent).catch(()=>{})">Copy</button>
+        <button class="btn btn-sm btn-p" onclick="dl('qa-report.md',document.getElementById('rpt-out').textContent,'text/markdown')">Download .md</button>
+      </div>
+    </div>
+    <div class="sb" id="rpt-out" style="min-height:180px"></div>
+  </div>
+</div>
+
+</div></div></div>
+<script>
+
+let AKEY='';
+function setKey(){const v=document.getElementById('modal-key').value.trim();if(!v){document.getElementById('modal-err').textContent='Please enter your API key';return;}AKEY=v;document.getElementById('api-modal').style.display='none';}
+function needKey(){if(!AKEY){document.getElementById('api-modal').style.display='flex';return true;}return false;}
+function sw(id,map){Object.keys(map).forEach(k=>{const el=document.getElementById('p-'+k);if(el)el.classList.remove('on');});document.querySelectorAll('.nv').forEach(n=>n.classList.remove('on'));const el=document.getElementById('p-'+id);if(el)el.classList.add('on');const keys=Object.keys(map);const idx=keys.indexOf(id);const nvs=document.querySelectorAll('.nv');if(nvs[idx])nvs[idx].classList.add('on');const tb=document.getElementById('tb');if(tb)tb.textContent=map[id];}
+async function claude(prompt,el,done,sys,maxTok){
+  if(needKey())return'';
+  if(el){el.style.display='block';el.textContent='';}
+  const body={model:'claude-sonnet-4-20250514',max_tokens:maxTok||1500,stream:true,messages:[{role:'user',content:prompt}]};
+  if(sys)body.system=sys;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':AKEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify(body)});
+    if(!r.ok){const e=await r.text();throw new Error('API '+r.status+': '+e.slice(0,200));}
+    let full='';const rd=r.body.getReader();const dc=new TextDecoder();
+    while(true){const{done:dn,value:v}=await rd.read();if(dn)break;
+      for(const ln of dc.decode(v).split('\n')){if(ln.startsWith('data: ')){try{const e=JSON.parse(ln.slice(6));if(e.delta?.text){full+=e.delta.text;if(el)el.textContent=full;}}catch(x){}}}}
+    if(done)done(full);return full;
+  }catch(e){if(el)el.textContent='Error: '+e.message;return'';}
+}
+function parseJ(t){const c=t.replace(/```json|```/g,'').trim();try{return JSON.parse(c);}catch(x){const m=c.match(/\{[\s\S]*\}/);if(m)return JSON.parse(m[0]);throw x;}}
+function dl(name,content,type){const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();URL.revokeObjectURL(a.href);}
+
+const T={tcgen:'Test case generator',datagen:'Test data generator',scriptgen:'Script generator',defect:'Defect predictor',analytics:'Analytics',pipeline:'Pipeline monitor',notifications:'Notifications',report:'Executive report'};
+
+async function runTCGen(){
+  const req=document.getElementById('tc-in').value.trim();if(!req){alert('Enter a requirement first.');return;}
+  const type=document.getElementById('tc-type').value,cov=document.getElementById('tc-cov').value,fmt=document.getElementById('tc-fmt').value;
+  document.getElementById('tc-res').style.display='block';const stream=document.getElementById('tc-stream');
+  const full=await claude(`Generate test cases. Return ONLY valid JSON (no markdown):\n{"test_cases":[{"id":"TC-001","title":"...","type":"Happy Path|Negative|Boundary|Edge Case","priority":"Critical|High|Medium|Low","steps":["step 1","step 2"],"expected":"...","test_data":"..."}]}\n\nCoverage: ${cov}, Type: ${type}, Format: ${fmt}\nRequirement: ${req}`,stream,null,'You are a QA engineer.');
+  try{const d=parseJ(full);const tcs=d.test_cases||[];
+    document.getElementById('tc-total').textContent=tcs.length;
+    document.getElementById('tc-h').textContent=tcs.filter(t=>t.type==='Happy Path').length;
+    document.getElementById('tc-n').textContent=tcs.filter(t=>t.type==='Negative').length;
+    document.getElementById('tc-b').textContent=tcs.filter(t=>t.type==='Boundary').length;
+    const pc={Critical:'bd',High:'bw',Medium:'bi',Low:'bs'};
+    document.getElementById('tc-list').innerHTML=tcs.map(tc=>`
+    <div style="padding:10px 0;border-bottom:.5px solid var(--bdr)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+        <span style="font-family:var(--fm);font-size:10px;color:var(--tx2);min-width:52px">${tc.id}</span>
+        <span style="flex:1;font-size:12px;font-weight:500">${tc.title}</span>
+        <span class="bx ${pc[tc.priority]||'bi'}">${tc.priority}</span>
+        <span class="chip">${tc.type}</span>
+      </div>
+      <div style="font-size:11px;color:var(--tx2);line-height:1.7;padding-left:8px">
+        ${(tc.steps||[]).map((s,i)=>`${i+1}. ${s}`).join('<br>')}<br>
+        <span style="color:var(--txs)">Expected: ${tc.expected}</span>
+        ${tc.test_data?`<br><span style="color:var(--tx2)">Data: ${tc.test_data}</span>`:''}
+      </div>
+    </div>`).join('');
+    stream.style.display='none';
+  }catch(e){}
+}
+
+async function runDataGen(){
+  const desc=document.getElementById('dg-in').value.trim();if(!desc){alert('Describe the entity first.');return;}
+  const cats=[['dg-v','valid'],['dg-i','invalid'],['dg-b','boundary values'],['dg-n','null/empty'],['dg-s','SQL injection'],['dg-x','XSS payloads']].filter(([id])=>document.getElementById(id).checked).map(([,n])=>n);
+  const fmt=document.getElementById('dg-fmt').value;
+  await claude(`Generate test data in ${fmt} format. Include categories: ${cats.join(', ')}. 3-5 records per category with comments labeling each category.\nEntity: ${desc}\nReturn only the raw ${fmt} data.`,document.getElementById('dg-out'));
+}
+
+async function runScript(){
+  const tc=document.getElementById('sg-in').value.trim();if(!tc){alert('Describe the test case first.');return;}
+  const fw=document.getElementById('sg-fw').value,pat=document.getElementById('sg-pat').value,inc=document.getElementById('sg-inc').value;
+  document.getElementById('sg-res').style.display='block';
+  await claude(`Generate production-quality ${fw} automation script using ${pat} pattern. Include: ${inc}. Write complete, runnable code with imports, assertions, and comments.\n\nTest case:\n${tc}`,document.getElementById('sg-out'));
+}
+
+async function runDefect(){
+  const desc=document.getElementById('dp-in').value.trim();if(!desc){alert('Describe the module first.');return;}
+  const cx=document.getElementById('dp-cx').value,hr=document.getElementById('dp-hr').value;
+  document.getElementById('dp-res').style.display='block';const stream=document.getElementById('dp-stream');
+  const full=await claude(`Predict defect hotspots. Return ONLY valid JSON:\n{"hotspots":[{"area":"...","probability":0,"severity":"Critical|High|Medium|Low","reason":"...","test_focus":"..."}],"summary":{"total_predicted":0,"high_risk_count":0,"avg_probability":0,"critical_paths":0,"recommendations":["..."]}}\n\nComplexity: ${cx}, Historical rate: ${hr}\nModule: ${desc}`,stream,null,'You are a QA risk analyst.');
+  try{const d=parseJ(full);const s=d.summary||{};
+    document.getElementById('dp-h').textContent=s.high_risk_count||'—';
+    document.getElementById('dp-t').textContent=s.total_predicted||'—';
+    document.getElementById('dp-a').textContent=s.avg_probability?Math.round(s.avg_probability)+'%':'—';
+    document.getElementById('dp-c').textContent=s.critical_paths||'—';
+    const sc={Critical:'bd',High:'bw',Medium:'bi',Low:'bs'};
+    document.getElementById('dp-list').innerHTML=(d.hotspots||[]).map(h=>{
+      const col=(h.severity==='Critical'||h.severity==='High')?'#A32D2D':h.severity==='Medium'?'#BA7517':'#3B6D11';
+      return`<div style="border:.5px solid var(--bdr);border-radius:var(--rm);padding:12px;margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;font-weight:500">${h.area}</span><span class="bx ${sc[h.severity]||'bi'}">${h.severity}</span><span style="font-size:12px;font-weight:500">${Math.round(h.probability||0)}%</span></div>
+        <div style="height:5px;background:var(--bg2);border-radius:99px;overflow:hidden;margin-bottom:6px"><div style="width:${Math.round(h.probability||0)}%;height:100%;background:${col};border-radius:99px"></div></div>
+        <div style="font-size:11px;color:var(--tx2)">${h.reason}</div>
+        ${h.test_focus?`<div style="font-size:11px;color:var(--txi);margin-top:3px">Focus: ${h.test_focus}</div>`:''}
+      </div>`;
+    }).join('')+(s.recommendations?.length?`<div style="padding:10px;background:var(--bgi);border-radius:var(--rm)"><div style="font-size:11px;font-weight:500;color:var(--txi);margin-bottom:4px">Recommendations</div>${s.recommendations.map(r=>`<div style="font-size:11px;color:var(--txi);padding:2px 0">&#8226; ${r}</div>`).join('')}</div>`:'');
+    stream.style.display='none';
+  }catch(e){}
+}
+
+async function runReport(){
+  const type=document.getElementById('rpt-t').value,aud=document.getElementById('rpt-a').value,ctx=document.getElementById('rpt-ctx').value;
+  document.getElementById('rpt-res').style.display='block';
+  await claude(`Write a ${type} for ${aud}. Professional business language. Clear sections with headings.\n${ctx||'Use typical metrics: 24 requirements, avg quality 78%, 83% coverage, 7 defects (2 critical), 3 compliance gaps.'}\nInclude: executive summary, key metrics, risk highlights, coverage status, compliance, recommendations, next steps.`,document.getElementById('rpt-out'));
+}
+</script>
+</body></html>
