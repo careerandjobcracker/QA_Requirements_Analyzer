@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>QA Analyzer — Widget 4: Workspace & Visualization</title><style>
+:root{--bg1:#fff;--bg2:#f5f4f0;--bg3:#eeede8;--bgi:#e6f1fb;--bgs:#eaf3de;--bgw:#faeeda;--bgd:#fcebeb;
+--tx1:#1a1915;--tx2:#6b6966;--txi:#185fa5;--txs:#3b6d11;--txw:#633806;--txd:#791f1f;
+--bdr:rgba(0,0,0,.12);--bds:rgba(0,0,0,.22);--rm:8px;--rl:12px;
+--fs:system-ui,-apple-system,sans-serif;--fm:'Menlo','Monaco','Courier New',monospace}
+@media(prefers-color-scheme:dark){:root{
+--bg1:#1e1e1c;--bg2:#2a2a27;--bg3:#242422;--bgi:#0c2340;--bgs:#122208;--bgw:#2a1a04;--bgd:#2a0c0c;
+--tx1:#f0ede8;--tx2:#9e9b96;--txi:#79b8f7;--txs:#86c653;--txw:#f0a050;--txd:#f47272;
+--bdr:rgba(255,255,255,.12);--bds:rgba(255,255,255,.22)}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--fs);font-size:13px;color:var(--tx1);background:var(--bg3)}
+.shell{display:flex;height:100vh;min-height:600px}
+.side{width:190px;flex-shrink:0;background:var(--bg1);border-right:.5px solid var(--bdr);display:flex;flex-direction:column;overflow-y:auto}
+.logo{padding:14px 16px;border-bottom:.5px solid var(--bdr)}
+.logo-t{font-size:13px;font-weight:500}.logo-s{font-size:11px;color:var(--tx2);margin-top:2px}
+.nl{font-size:10px;font-weight:500;color:var(--tx2);padding:8px 16px 2px;letter-spacing:.04em}
+.nv{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:12px;color:var(--tx2);cursor:pointer;border:none;background:none;width:100%;text-align:left;transition:background .1s}
+.nv:hover{background:var(--bg2);color:var(--tx1)}.nv.on{background:var(--bgi);color:var(--txi);font-weight:500}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+.main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.topbar{background:var(--bg1);border-bottom:.5px solid var(--bdr);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:10}
+.topbar-t{font-size:14px;font-weight:500}
+.content{flex:1;overflow-y:auto;padding:18px 20px}
+.panel{display:none}.panel.on{display:block}
+.card{background:var(--bg1);border:.5px solid var(--bdr);border-radius:var(--rl);padding:16px;margin-bottom:14px}
+.card-t{font-size:13px;font-weight:500;margin-bottom:12px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.mc{background:var(--bg2);border-radius:var(--rm);padding:12px}
+.mc-l{font-size:11px;color:var(--tx2);margin-bottom:3px}.mc-v{font-size:20px;font-weight:500}
+.bx{font-size:10px;padding:3px 8px;border-radius:99px;font-weight:500;white-space:nowrap;display:inline-block}
+.bi{background:var(--bgi);color:var(--txi)}.bs{background:var(--bgs);color:var(--txs)}
+.bw{background:var(--bgw);color:var(--txw)}.bd{background:var(--bgd);color:var(--txd)}
+.inp{width:100%;border:.5px solid var(--bdr);border-radius:var(--rm);padding:8px 10px;font-size:12px;font-family:var(--fs);color:var(--tx1);background:var(--bg2)}
+.ta{width:100%;border:.5px solid var(--bdr);border-radius:var(--rm);padding:8px 10px;font-size:12px;font-family:var(--fs);color:var(--tx1);background:var(--bg2);resize:vertical;min-height:80px}
+.ta-m{font-family:var(--fm);font-size:11px}
+.btn{border:.5px solid var(--bds);border-radius:var(--rm);padding:7px 14px;font-size:12px;cursor:pointer;background:transparent;color:var(--tx1)}
+.btn:hover{background:var(--bg2)}.btn-p{background:var(--txi);color:#fff;border-color:transparent}
+.btn-p:hover{opacity:.88}.btn-sm{padding:4px 10px;font-size:11px}
+.row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:.5px solid var(--bdr);font-size:12px}
+.row:last-child{border-bottom:none}
+.fl{font-size:11px;color:var(--tx2);margin-bottom:4px}.fld{margin-bottom:10px}
+.sb{background:var(--bg2);border-radius:var(--rm);padding:12px;font-size:11px;line-height:1.75;color:var(--tx1);min-height:60px;white-space:pre-wrap;font-family:var(--fm)}
+.tag{font-size:10px;padding:2px 7px;border-radius:99px;font-weight:500;white-space:nowrap}
+.chip{display:inline-flex;align-items:center;font-size:11px;padding:3px 8px;border-radius:99px;border:.5px solid var(--bds);color:var(--tx2);margin:2px;cursor:pointer}
+.divider{height:.5px;background:var(--bdr);margin:12px 0}
+.empty{font-size:12px;color:var(--tx2);padding:20px 0;text-align:center}
+</style>
+<style>
+.kanban{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.kb-col{background:var(--bg2);border-radius:var(--rm);padding:10px;min-height:180px}
+.kb-col-t{font-size:11px;font-weight:500;color:var(--tx2);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.kb-card{background:var(--bg1);border:.5px solid var(--bdr);border-radius:var(--rm);padding:10px;margin-bottom:7px;cursor:grab}
+.kb-card-f{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
+.s-init{background:#E6F1FB;color:#0C447C;border:.5px solid #85B7EB;padding:6px 12px;border-radius:var(--rm);font-size:12px;font-weight:500;display:inline-block;margin:3px;cursor:pointer}
+.s-mid{background:var(--bg2);color:var(--tx1);border:.5px solid var(--bds);padding:6px 12px;border-radius:var(--rm);font-size:12px;font-weight:500;display:inline-block;margin:3px;cursor:pointer}
+.s-final{background:#EAF3DE;color:#27500A;border:.5px solid #97C459;padding:6px 12px;border-radius:var(--rm);font-size:12px;font-weight:500;display:inline-block;margin:3px;cursor:pointer}
+.s-error{background:#FCEBEB;color:#791F1F;border:.5px solid #F09595;padding:6px 12px;border-radius:var(--rm);font-size:12px;font-weight:500;display:inline-block;margin:3px;cursor:pointer}
+.api-method{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:500;font-family:var(--fm)}
+.m-get{background:#EAF3DE;color:#27500A}.m-post{background:#E6F1FB;color:#0C447C}
+.m-put{background:#FAEEDA;color:#633806}.m-del{background:#FCEBEB;color:#791F1F}
+.ver-row{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:.5px solid var(--bdr)}
+.ver-row:last-child{border-bottom:none}
+.hl{background:#FAEEDA;color:#633806;padding:0 3px;border-radius:3px}
+.sr{padding:10px 0;border-bottom:.5px solid var(--bdr)}.sr:last-child{border-bottom:none}
+.tl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+</style>
+</head><body>
+<div id="api-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:9999">
+<div style="background:var(--bg1);border-radius:var(--rl);padding:24px;width:400px;border:.5px solid var(--bdr)">
+<div style="font-size:15px;font-weight:500;margin-bottom:8px">Enter Anthropic API key</div>
+<div style="font-size:12px;color:var(--tx2);margin-bottom:14px">Stored in memory only. Sent exclusively to api.anthropic.com.</div>
+<input type="password" id="modal-key" placeholder="sk-ant-..." style="width:100%;border:.5px solid var(--bdr);border-radius:var(--rm);padding:10px;font-size:13px;color:var(--tx1);background:var(--bg2);margin-bottom:10px"/>
+<button onclick="setKey()" style="width:100%;background:var(--txi);color:#fff;border:none;padding:10px;border-radius:var(--rm);font-size:13px;font-weight:500;cursor:pointer">Continue &#8594;</button>
+<div id="modal-err" style="color:var(--txd);font-size:12px;margin-top:6px"></div>
+</div></div>
+<div class="shell">
+<div class="side">
+  <div class="logo"><div class="logo-t">QA Analyzer</div><div class="logo-s">Widget 4 — Workspace</div></div>
+  <div class="nl">Visualization</div>
+  <button class="nv on" onclick="sw('statemachine',T)"><div class="dot"></div>State machine</button>
+  <button class="nv" onclick="sw('apitest',T)"><div class="dot"></div>API contract</button>
+  <button class="nv" onclick="sw('depmap',T)"><div class="dot"></div>Dependency map</button>
+  <div class="nl">Planning</div>
+  <button class="nv" onclick="sw('sprint',T)"><div class="dot"></div>Sprint board</button>
+  <button class="nv" onclick="sw('estimate',T)"><div class="dot"></div>Effort estimator</button>
+  <div class="nl">Workspace</div>
+  <button class="nv" onclick="sw('versions',T)"><div class="dot"></div>Version history</button>
+  <button class="nv" onclick="sw('search',T)"><div class="dot"></div>Global search</button>
+  <button class="nv" onclick="sw('collab',T)"><div class="dot"></div>Collaboration</button>
+</div>
+<div class="main">
+<div class="topbar"><span class="topbar-t" id="tb">State machine visualizer</span><span class="bx bs">Widget 4</span></div>
+<div class="content">
+
+<div class="panel on" id="p-statemachine">
+  <div class="card"><div class="card-t">State machine generator</div>
+    <textarea class="ta" id="sm-in" placeholder="Order lifecycle: Draft → Submitted → Under Review → Approved / Rejected. If approved → Processing → Shipped → Delivered. Can be Cancelled from Draft or Submitted. Returns trigger Refund from Delivered."></textarea>
+    <button class="btn btn-p" onclick="runSM()" style="width:100%;margin-top:10px">Generate state machine &#8599;</button>
+  </div>
+  <div class="card" id="sm-res" style="display:none">
+    <div class="card-t">State diagram</div>
+    <div id="sm-visual" style="padding:10px 0;line-height:2.4"></div>
+    <div style="margin-top:12px"><div class="fl">Transitions</div><div id="sm-trans"></div></div>
+    <div style="margin-top:12px"><div class="fl">Generated test scenarios</div><div class="sb" id="sm-tests" style="min-height:60px"></div></div>
+    <div class="sb" id="sm-stream" style="display:none;margin-top:8px"></div>
+  </div>
+</div>
+
+<div class="panel" id="p-apitest">
+  <div class="card"><div class="card-t">API contract analyzer</div>
+    <textarea class="ta ta-m" id="api-in" style="min-height:110px" placeholder="Paste OpenAPI/Swagger spec (JSON or YAML) or describe your API endpoints with request/response schemas..."></textarea>
+    <div class="g2" style="margin-top:10px">
+      <div class="fld"><div class="fl">Focus</div><select class="inp" id="api-f"><option>Full contract analysis</option><option>Security testing</option><option>Boundary & validation</option><option>Error scenarios only</option></select></div>
+      <div class="fld"><div class="fl">Output format</div><select class="inp" id="api-g"><option>Test cases + curl</option><option>Postman collection JSON</option><option>Pytest test file</option></select></div>
+    </div>
+    <button class="btn btn-p" onclick="runAPI()" style="width:100%">Analyze API contract &#8599;</button>
+  </div>
+  <div class="card" id="api-res" style="display:none"><div class="card-t">API test requirements</div><div id="api-list"></div><div class="sb" id="api-stream" style="display:none;margin-top:10px"></div></div>
+</div>
+
+<div class="panel" id="p-depmap">
+  <div class="card"><div class="card-t">Requirement dependency mapper</div>
+    <textarea class="ta" id="dep-in" style="min-height:110px" placeholder="REQ-001: User registration&#10;REQ-002: Email verification (depends on REQ-001)&#10;REQ-003: User login (depends on REQ-001, REQ-002)&#10;REQ-004: Password reset (depends on REQ-001)&#10;REQ-005: User profile (depends on REQ-003)&#10;REQ-006: Admin dashboard (depends on REQ-003)"></textarea>
+    <button class="btn btn-p" onclick="runDep()" style="width:100%;margin-top:10px">Build dependency map &#8599;</button>
+  </div>
+  <div class="card" id="dep-res" style="display:none"><div class="card-t">Dependency analysis</div><div id="dep-vis"></div><div class="sb" id="dep-stream" style="display:none;margin-top:10px"></div></div>
+</div>
+
+<div class="panel" id="p-sprint">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <div><div style="font-size:13px;font-weight:500">Sprint board</div><div style="font-size:11px;color:var(--tx2);margin-top:2px">Drag cards between columns to update status</div></div>
+    <div style="display:flex;gap:6px"><button class="btn btn-sm" onclick="addCard()">+ Add task</button><button class="btn btn-sm btn-p" onclick="runSprintAI()">AI prioritize &#8599;</button></div>
+  </div>
+  <div class="g4" style="margin-bottom:14px">
+    <div class="mc"><div class="mc-l">Total</div><div class="mc-v" id="sp-t">0</div></div>
+    <div class="mc"><div class="mc-l">In progress</div><div class="mc-v" id="sp-p">0</div></div>
+    <div class="mc"><div class="mc-l">Blocked</div><div class="mc-v" id="sp-b">0</div></div>
+    <div class="mc"><div class="mc-l">Done</div><div class="mc-v" id="sp-d">0</div></div>
+  </div>
+  <div class="kanban" id="kanban"></div>
+  <div class="sb" id="sp-stream" style="display:none;margin-top:12px"></div>
+</div>
+
+<div class="panel" id="p-estimate">
+  <div class="card"><div class="card-t">QA effort estimator</div>
+    <textarea class="ta" id="est-in" placeholder="E-commerce checkout: cart, payment (3 gateways), shipping calculator, promo codes, order confirmation emails, inventory check, tax calculation per region. Mobile + web. 12 requirements."></textarea>
+    <div class="g3" style="margin-top:10px">
+      <div class="fld"><div class="fl">Team size</div><select class="inp" id="est-team"><option>1 QA</option><option selected>2-3 QAs</option><option>4-6 QAs</option><option>7+ QAs</option></select></div>
+      <div class="fld"><div class="fl">Environment</div><select class="inp" id="est-env"><option>Manual only</option><option selected>Manual + automation</option><option>Full automation</option></select></div>
+      <div class="fld"><div class="fl">Sprint length</div><select class="inp" id="est-sprint"><option>1 week</option><option selected>2 weeks</option><option>3 weeks</option><option>4 weeks</option></select></div>
+    </div>
+    <button class="btn btn-p" onclick="runEst()" style="width:100%">Estimate QA effort &#8599;</button>
+  </div>
+  <div class="card" id="est-res" style="display:none">
+    <div class="g4" style="margin-bottom:14px">
+      <div class="mc"><div class="mc-l">Test cases</div><div class="mc-v" id="est-tc">—</div></div>
+      <div class="mc"><div class="mc-l">Automation %</div><div class="mc-v" id="est-au">—</div></div>
+      <div class="mc"><div class="mc-l">Total hours</div><div class="mc-v" id="est-hr">—</div></div>
+      <div class="mc"><div class="mc-l">Sprints needed</div><div class="mc-v" id="est-sp">—</div></div>
+    </div>
+    <div class="sb" id="est-stream" style="min-height:80px"></div>
+  </div>
+</div>
+
+<div class="panel" id="p-versions">
+  <div class="card"><div class="card-t">Version history &amp; audit trail</div>
+    <div id="ver-list">
+      <div class="ver-row"><div class="tl-dot" style="background:#BA7517"></div><div style="flex:1"><div style="font-size:12px;font-weight:500">REQ-007 updated — OAuth added, 3 ACs added</div><div style="font-size:11px;color:var(--tx2)">Alice Chen · Apr 22, 14:32</div></div><span class="bx bi">v1.3</span></div>
+      <div class="ver-row"><div class="tl-dot" style="background:#185FA5"></div><div style="flex:1"><div style="font-size:12px;font-weight:500">Full analysis run — 24 reqs, 89 scenarios, 3 gaps</div><div style="font-size:11px;color:var(--tx2)">System (AI) · Apr 22, 11:05</div></div><span class="bx bi">v1.3</span></div>
+      <div class="ver-row"><div class="tl-dot" style="background:#3B6D11"></div><div style="flex:1"><div style="font-size:12px;font-weight:500">REQ-023, REQ-024 added from Sprint 6 planning</div><div style="font-size:11px;color:var(--tx2)">Bob Martinez · Apr 19, 09:18</div></div><span class="bx bi">v1.2</span></div>
+      <div class="ver-row"><div class="tl-dot" style="background:#3B6D11"></div><div style="flex:1"><div style="font-size:12px;font-weight:500">RTM exported to Excel · Gherkin .feature exported</div><div style="font-size:11px;color:var(--tx2)">Alice Chen · Apr 17, 16:44</div></div><span class="bx bi">v1.2</span></div>
+      <div class="ver-row"><div class="tl-dot" style="background:#A32D2D"></div><div style="flex:1"><div style="font-size:12px;font-weight:500">REQ-019 removed — duplicate of REQ-004</div><div style="font-size:11px;color:var(--tx2)">Bob Martinez · Apr 16, 10:00</div></div><span class="bx bi">v1.1</span></div>
+      <div class="ver-row"><div class="tl-dot" style="background:#185FA5"></div><div style="flex:1"><div style="font-size:12px;font-weight:500">Initial baseline — 18 requirements imported</div><div style="font-size:11px;color:var(--tx2)">Alice Chen · Apr 14, 09:00</div></div><span class="bx bi">v1.0</span></div>
+    </div>
+  </div>
+  <div class="card"><div class="card-t">Compare or restore versions</div>
+    <div class="g2">
+      <div class="fld"><div class="fl">Version A</div><select class="inp"><option>v1.0 — Apr 14 baseline</option><option>v1.1 — Apr 16 sprint update</option><option>v1.2 — Apr 19 review</option></select></div>
+      <div class="fld"><div class="fl">Version B</div><select class="inp"><option selected>v1.3 — Apr 22 current</option><option>v1.2 — Apr 19 review</option></select></div>
+    </div>
+    <button class="btn btn-p" onclick="runVersionCompare()" style="width:100%">Compare with AI &#8599;</button>
+    <div class="sb" id="ver-stream" style="display:none;margin-top:10px"></div>
+  </div>
+</div>
+
+<div class="panel" id="p-search">
+  <div class="card"><div class="card-t">Global search</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <input class="inp" id="sq" placeholder="Search requirements, test cases, domain terms, defects..." style="flex:1" oninput="doSearch(this.value)"/>
+      <select class="inp" style="width:130px" id="ss"><option>All content</option><option>Requirements</option><option>Test cases</option><option>Domain KB</option><option>Defects</option></select>
+    </div>
+    <div id="sr"><div class="empty">Type to search across all requirements, test cases, and artifacts.</div></div>
+  </div>
+  <div class="card"><div class="card-t">AI semantic search</div>
+    <textarea class="ta" id="sem-in" placeholder="Ask a question: Which requirements touch the payment flow? / Which reqs have low testability? / What requirements may be affected by GDPR Article 17?"></textarea>
+    <button class="btn btn-p" onclick="runSem()" style="width:100%;margin-top:10px">Search with AI &#8599;</button>
+    <div class="sb" id="sem-out" style="display:none;margin-top:10px"></div>
+  </div>
+</div>
+
+<div class="panel" id="p-collab">
+  <div class="g2" style="margin-bottom:0">
+    <div class="card"><div class="card-t">Team members</div>
+      <div id="team-list"></div>
+      <div style="display:flex;gap:6px;margin-top:10px">
+        <input class="inp" id="inv-em" placeholder="Email address" style="flex:1"/>
+        <select class="inp" style="width:90px" id="inv-role"><option>Viewer</option><option>Editor</option><option>Admin</option></select>
+        <button class="btn btn-sm btn-p" onclick="inviteMember()">Invite</button>
+      </div>
+    </div>
+    <div class="card"><div class="card-t">Review queue</div>
+      <div class="row"><span style="font-family:var(--fm);font-size:10px;color:var(--tx2);min-width:50px">REQ-007</span><span style="flex:1">OAuth requirement</span><span class="bx bw">Pending</span></div>
+      <div class="row"><span style="font-family:var(--fm);font-size:10px;color:var(--tx2);min-width:50px">REQ-012</span><span style="flex:1">Admin dashboard</span><span class="bx bi">In review</span></div>
+      <div class="row"><span style="font-family:var(--fm);font-size:10px;color:var(--tx2);min-width:50px">REQ-015</span><span style="flex:1">Audit logging</span><span class="bx bs">Approved</span></div>
+    </div>
+  </div>
+  <div class="card"><div class="card-t">Inline comments &amp; annotations</div>
+    <div class="g2">
+      <div class="fld"><div class="fl">Requirement</div><select class="inp" id="com-req"><option>REQ-001: User login</option><option>REQ-003: Password reset</option><option>REQ-007: Payment processing</option><option>REQ-012: Admin dashboard</option></select></div>
+      <div class="fld"><div class="fl">Comment type</div><select class="inp" id="com-type"><option>General comment</option><option>Ambiguity flag</option><option>Missing AC</option><option>Conflict</option><option>Approval</option></select></div>
+    </div>
+    <textarea class="ta" id="com-txt" placeholder="Add your comment or annotation..."></textarea>
+    <button class="btn btn-p" onclick="addComment()" style="width:100%;margin-top:8px">Post comment</button>
+    <div id="comments" style="margin-top:12px"></div>
+  </div>
+</div>
+
+</div></div></div>
+<script>
+
+let AKEY='';
+function setKey(){const v=document.getElementById('modal-key').value.trim();if(!v){document.getElementById('modal-err').textContent='Please enter your API key';return;}AKEY=v;document.getElementById('api-modal').style.display='none';}
+function needKey(){if(!AKEY){document.getElementById('api-modal').style.display='flex';return true;}return false;}
+function sw(id,map){Object.keys(map).forEach(k=>{const el=document.getElementById('p-'+k);if(el)el.classList.remove('on');});document.querySelectorAll('.nv').forEach(n=>n.classList.remove('on'));const el=document.getElementById('p-'+id);if(el)el.classList.add('on');const keys=Object.keys(map);const idx=keys.indexOf(id);const nvs=document.querySelectorAll('.nv');if(nvs[idx])nvs[idx].classList.add('on');const tb=document.getElementById('tb');if(tb)tb.textContent=map[id];}
+async function claude(prompt,el,done,sys,maxTok){
+  if(needKey())return'';
+  if(el){el.style.display='block';el.textContent='';}
+  const body={model:'claude-sonnet-4-20250514',max_tokens:maxTok||1500,stream:true,messages:[{role:'user',content:prompt}]};
+  if(sys)body.system=sys;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':AKEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify(body)});
+    if(!r.ok){const e=await r.text();throw new Error('API '+r.status+': '+e.slice(0,200));}
+    let full='';const rd=r.body.getReader();const dc=new TextDecoder();
+    while(true){const{done:dn,value:v}=await rd.read();if(dn)break;
+      for(const ln of dc.decode(v).split('\n')){if(ln.startsWith('data: ')){try{const e=JSON.parse(ln.slice(6));if(e.delta?.text){full+=e.delta.text;if(el)el.textContent=full;}}catch(x){}}}}
+    if(done)done(full);return full;
+  }catch(e){if(el)el.textContent='Error: '+e.message;return'';}
+}
+function parseJ(t){const c=t.replace(/```json|```/g,'').trim();try{return JSON.parse(c);}catch(x){const m=c.match(/\{[\s\S]*\}/);if(m)return JSON.parse(m[0]);throw x;}}
+function dl(name,content,type){const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();URL.revokeObjectURL(a.href);}
+
+const T={statemachine:'State machine visualizer',apitest:'API contract tester',depmap:'Dependency map',sprint:'Sprint planning board',estimate:'Effort estimator',versions:'Version history',search:'Global search',collab:'Collaboration'};
+
+async function runSM(){
+  const txt=document.getElementById('sm-in').value.trim();if(!txt){alert('Describe a workflow first.');return;}
+  document.getElementById('sm-res').style.display='block';const stream=document.getElementById('sm-stream');
+  const full=await claude(`Analyze this workflow and return ONLY valid JSON (no markdown):\n{"states":[{"id":"s1","label":"Draft","type":"initial|middle|final|error"}],"transitions":[{"from":"s1","to":"s2","trigger":"user submits","condition":""}],"test_scenarios":["Scenario 1: happy path through all states","Scenario 2: cancellation flow"]}\n\nWorkflow: ${txt}`,stream,null);
+  try{const d=parseJ(full);
+    const tc={initial:'s-init',final:'s-final',error:'s-error',middle:'s-mid'};
+    document.getElementById('sm-visual').innerHTML=(d.states||[]).map(s=>`<span class="${tc[s.type]||'s-mid'}">${s.label}</span>`).join(' <span style="color:var(--tx2);font-size:16px">&#8250;</span> ');
+    document.getElementById('sm-trans').innerHTML=(d.transitions||[]).map(t=>`<div class="row"><span style="min-width:80px;font-size:11px;font-weight:500">${t.from}</span><span style="color:var(--tx2)">&#8594;</span><span style="flex:1;font-size:11px">${t.trigger}${t.condition?` [${t.condition}]`:''}</span><span style="font-size:11px;font-weight:500">${t.to}</span></div>`).join('');
+    document.getElementById('sm-tests').textContent=(d.test_scenarios||[]).join('\n');
+    stream.style.display='none';
+  }catch(e){}
+}
+
+async function runAPI(){
+  const spec=document.getElementById('api-in').value.trim();if(!spec){alert('Paste API spec first.');return;}
+  document.getElementById('api-res').style.display='block';const stream=document.getElementById('api-stream');
+  const full=await claude(`Analyze this API spec for ${document.getElementById('api-f').value}. Return ONLY valid JSON (no markdown):\n{"endpoints":[{"method":"POST","path":"/users","description":"...","test_cases":[{"name":"...","type":"Happy|Negative|Security|Boundary","status_code":201,"payload":"...","expected":"..."}],"status_codes":["201","400","409"]}]}\n\nOutput suitable for: ${document.getElementById('api-g').value}\nSpec: ${spec}`,stream,null);
+  try{const d=parseJ(full);
+    const mc={GET:'m-get',POST:'m-post',PUT:'m-put',DELETE:'m-del',PATCH:'m-post'};
+    const sc={Happy:'bs',Negative:'bw',Security:'bd',Boundary:'bi'};
+    document.getElementById('api-list').innerHTML=(d.endpoints||[]).map(ep=>`
+    <div style="padding:10px 0;border-bottom:.5px solid var(--bdr)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+        <span class="api-method ${mc[ep.method]||'m-post'}">${ep.method}</span>
+        <span style="font-family:var(--fm);font-size:12px;flex:1">${ep.path}</span>
+        ${(ep.status_codes||[]).map(c=>`<span style="font-size:10px;padding:2px 5px;border-radius:3px;font-family:var(--fm);background:var(--bg2)">${c}</span>`).join('')}
+      </div>
+      <div style="font-size:11px;color:var(--tx2);margin-bottom:6px">${ep.description||''}</div>
+      ${(ep.test_cases||[]).map(tc=>`<div style="background:var(--bg2);border-radius:var(--rm);padding:7px 10px;margin-bottom:4px;display:flex;align-items:center;gap:6px">
+        <span class="bx ${sc[tc.type]||'bi'}">${tc.type}</span><span style="flex:1;font-size:11px">${tc.name}</span>
+        <span style="font-size:10px;font-family:var(--fm);color:var(--tx2)">${tc.status_code}</span></div>`).join('')}
+    </div>`).join('');
+    stream.style.display='none';
+  }catch(e){}
+}
+
+async function runDep(){
+  const txt=document.getElementById('dep-in').value.trim();if(!txt){alert('List requirements first.');return;}
+  document.getElementById('dep-res').style.display='block';const stream=document.getElementById('dep-stream');
+  const full=await claude(`Analyze requirement dependencies. Return ONLY valid JSON (no markdown):\n{"layers":[{"level":1,"reqs":["REQ-001","REQ-002"]}],"critical_path":["REQ-001","REQ-003","REQ-005"],"orphans":[],"insights":["...","..."]}\n\nRequirements:\n${txt}`,stream,null);
+  try{const d=parseJ(full);
+    const lc=['#E6F1FB','#EAF3DE','#FAEEDA','#EEEDFE','#FAECE7'];
+    const ltc=['#0C447C','#27500A','#633806','#3C3489','#712B13'];
+    let html=(d.layers||[]).map((l,i)=>`<div style="margin-bottom:8px"><div style="font-size:10px;color:var(--tx2);margin-bottom:4px">Layer ${l.level}</div><div style="display:flex;flex-wrap:wrap;gap:5px">${(l.reqs||[]).map(r=>{const isCrit=(d.critical_path||[]).includes(r);return`<span style="padding:5px 10px;border-radius:var(--rm);font-size:12px;font-weight:500;background:${lc[i%5]};color:${ltc[i%5]};border:${isCrit?'2px solid #A32D2D':'.5px solid transparent'}">${r}${isCrit?' &#9733;':''}</span>`;}).join('')}</div></div>`).join('');
+    if(d.critical_path?.length)html+=`<div style="padding:10px;background:var(--bgd);border-radius:var(--rm);margin:8px 0"><div style="font-size:11px;font-weight:500;color:var(--txd);margin-bottom:4px">Critical path — test these first</div><div style="font-size:12px;color:var(--txd)">${d.critical_path.join(' &#8594; ')}</div></div>`;
+    if(d.insights?.length)html+=`<div style="margin-top:8px"><div class="fl">Insights</div>${d.insights.map(i=>`<div style="font-size:12px;padding:3px 0">&#8226; ${i}</div>`).join('')}</div>`;
+    document.getElementById('dep-vis').innerHTML=html;stream.style.display='none';
+  }catch(e){}
+}
+
+const spData={
+  backlog:[{id:'QA-01',title:'Login flow test suite',p:'Critical',pts:5},{id:'QA-02',title:'Password reset scenarios',p:'High',pts:3},{id:'QA-05',title:'Accessibility audit — forms',p:'Medium',pts:2}],
+  inprogress:[{id:'QA-03',title:'Payment gateway integration tests',p:'Critical',pts:8},{id:'QA-06',title:'API contract validation',p:'High',pts:3}],
+  blocked:[{id:'QA-04',title:'SSO login testing',p:'High',pts:5}],
+  done:[{id:'QA-07',title:'User registration suite',p:'High',pts:5},{id:'QA-08',title:'Smoke test pack',p:'Critical',pts:2}]
+};
+const pC={Critical:'bd',High:'bw',Medium:'bi',Low:'bs'};
+const cC={backlog:'var(--tx2)',inprogress:'var(--txi)',blocked:'var(--txd)',done:'var(--txs)'};
+let dragId=null,dragFrom=null;
+
+function renderKanban(){
+  const cols={backlog:'Backlog',inprogress:'In progress',blocked:'Blocked',done:'Done'};
+  let t=0,p=0,b=0,dn=0;
+  document.getElementById('kanban').innerHTML=Object.entries(cols).map(([k,label])=>{
+    const items=spData[k]||[];t+=items.length;
+    if(k==='inprogress')p=items.length;if(k==='blocked')b=items.length;if(k==='done')dn=items.length;
+    return`<div class="kb-col" id="col-${k}" ondragover="event.preventDefault();this.style.outline='2px dashed var(--txi)'" ondragleave="this.style.outline=''" ondrop="dropCard(event,'${k}')">
+    <div class="kb-col-t"><span style="color:${cC[k]}">${label}</span><span class="bx bi">${items.length}</span></div>
+    ${items.map(item=>`<div class="kb-card" draggable="true" id="card-${item.id}" ondragstart="dragId='${item.id}';dragFrom='${k}';this.style.opacity='.4'" ondragend="this.style.opacity='1'">
+      <div style="font-size:12px;font-weight:500;margin-bottom:3px">${item.title}</div>
+      <div style="font-size:11px;color:var(--tx2)">${item.id} · ${item.pts} pts</div>
+      <div class="kb-card-f"><span class="bx ${pC[item.p]||'bi'}">${item.p}</span></div>
+    </div>`).join('')}</div>`;
+  }).join('');
+  document.getElementById('sp-t').textContent=t;document.getElementById('sp-p').textContent=p;
+  document.getElementById('sp-b').textContent=b;document.getElementById('sp-d').textContent=dn;
+}
+
+function dropCard(ev,to){
+  ev.preventDefault();document.querySelectorAll('.kb-col').forEach(c=>c.style.outline='');
+  if(!dragId||dragFrom===to)return;
+  const idx=spData[dragFrom].findIndex(x=>x.id===dragId);
+  if(idx>-1){const[item]=spData[dragFrom].splice(idx,1);spData[to].push(item);}
+  dragId=null;dragFrom=null;renderKanban();
+}
+
+function addCard(){spData.backlog.unshift({id:'QA-'+Math.floor(Math.random()*90+10),title:'New test task',p:'Medium',pts:3});renderKanban();}
+
+async function runSprintAI(){
+  const stream=document.getElementById('sp-stream');
+  const items=Object.entries(spData).flatMap(([col,tasks])=>tasks.map(t=>Object.assign({col},t)));
+  await claude(`You are a QA lead. Give 3-4 specific sprint prioritization recommendations based on this board:\n\n${JSON.stringify(items)}`,stream);
+}
+renderKanban();
+
+async function runEst(){
+  const desc=document.getElementById('est-in').value.trim();if(!desc){alert('Describe the feature first.');return;}
+  document.getElementById('est-res').style.display='block';const stream=document.getElementById('est-stream');
+  const full=await claude(`Estimate QA effort. Return ONLY valid JSON (no markdown):\n{"test_cases":0,"automation_pct":0,"total_hours":0,"sprints":0,"breakdown":{"planning_hrs":0,"design_hrs":0,"execution_hrs":0,"automation_hrs":0,"regression_hrs":0},"assumptions":["..."],"risks":["..."]}\n\nTeam: ${document.getElementById('est-team').value}, Env: ${document.getElementById('est-env').value}, Sprint: ${document.getElementById('est-sprint').value}\nFeature: ${desc}`,stream,null,'You are a QA manager.');
+  try{const d=parseJ(full);
+    document.getElementById('est-tc').textContent=d.test_cases||'—';
+    document.getElementById('est-au').textContent=(d.automation_pct||0)+'%';
+    document.getElementById('est-hr').textContent=d.total_hours||'—';
+    document.getElementById('est-sp').textContent=d.sprints||'—';
+    const b=d.breakdown||{};
+    stream.textContent=Object.entries(b).map(([k,v])=>`${k.replace(/_/g,' ')}: ${v}h`).join('\n')+(d.assumptions?.length?'\n\nAssumptions:\n'+d.assumptions.map(a=>'• '+a).join('\n'):'')+(d.risks?.length?'\n\nRisks:\n'+d.risks.map(r=>'⚡ '+r).join('\n'):'');
+  }catch(e){}
+}
+
+async function runVersionCompare(){
+  await claude('Compare v1.0 baseline vs v1.3 current requirements. List: what was added, modified, deleted. Assess the risk of the changes and which test suites need updating.',document.getElementById('ver-stream'));
+}
+
+const searchData=[
+  {id:'REQ-001',type:'Requirement',title:'User login with email and password',snippet:'Authenticate using email and password. Account locks after 3 failed attempts.'},
+  {id:'REQ-003',type:'Requirement',title:'Password reset via email link',snippet:'Time-limited reset link sent to email. Link expires after 60 minutes, single-use.'},
+  {id:'TC-001',type:'Test case',title:'Verify login with valid credentials',snippet:'Navigate to /login, enter valid credentials, assert redirect to /dashboard.'},
+  {id:'TC-014',type:'Test case',title:'Verify account lockout after 3 failures',snippet:'Attempt login with wrong password 3 times. Assert account locked and email sent.'},
+  {id:'KB-01',type:'Domain KB',title:'Session token',snippet:'JWT issued on successful login. Expires after 30 minutes of inactivity.'},
+  {id:'DEF-07',type:'Defect',title:'Session not invalidated on password reset',snippet:'Old session tokens remain valid after password reset. OWASP A07 violation.'},
+];
+
+function doSearch(q){
+  if(!q||q.length<2){document.getElementById('sr').innerHTML='<div class="empty">Type at least 2 characters.</div>';return;}
+  const lower=q.toLowerCase();
+  const results=searchData.filter(x=>x.title.toLowerCase().includes(lower)||x.snippet.toLowerCase().includes(lower));
+  const typeC={'Requirement':'bi','Test case':'bs','Domain KB':'bw','Defect':'bd'};
+  function hl(s){return s.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'),'<span class="hl">$1</span>');}
+  document.getElementById('sr').innerHTML=results.length?results.map(r=>`<div class="sr">
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px"><span style="font-size:12px;font-weight:500">${hl(r.title)}</span><span class="bx ${typeC[r.type]||'bi'}" style="font-size:10px">${r.type}</span></div>
+    <div style="font-size:11px;color:var(--tx2)">${hl(r.snippet)}</div>
+  </div>`).join(''):'<div class="empty">No results for "'+q+'".</div>';
+}
+
+async function runSem(){
+  const q=document.getElementById('sem-in').value.trim();if(!q){alert('Enter a question first.');return;}
+  const stream=document.getElementById('sem-out');
+  await claude(`Answer this question about requirements and test artifacts. Be specific, reference IDs, give actionable answers.\n\nQuestion: ${q}\n\nKnowledge base: ${JSON.stringify(searchData)}`,stream);
+}
+
+const team=[{name:'Alice Chen',role:'Admin',status:'online',init:'AC',c:'#E6F1FB',tc:'#0C447C'},{name:'Bob Martinez',role:'Editor',status:'online',init:'BM',c:'#EAF3DE',tc:'#27500A'},{name:'Carol Singh',role:'Viewer',status:'offline',init:'CS',c:'#EEEDFE',tc:'#3C3489'}];
+let comments=[];
+
+function renderTeam(){document.getElementById('team-list').innerHTML=team.map(m=>`<div class="row">
+  <div style="width:28px;height:28px;border-radius:50%;background:${m.c};color:${m.tc};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;flex-shrink:0">${m.init}</div>
+  <div style="flex:1"><div style="font-size:12px;font-weight:500">${m.name}</div></div>
+  <span class="bx ${m.role==='Admin'?'bd':m.role==='Editor'?'bw':'bi'}">${m.role}</span>
+  <span style="width:7px;height:7px;border-radius:50%;background:${m.status==='online'?'#639922':'#888780'};flex-shrink:0"></span>
+</div>`).join('');};
+
+function inviteMember(){const email=document.getElementById('inv-em').value.trim(),role=document.getElementById('inv-role').value;if(!email)return;team.push({name:email,role,status:'offline',init:email.slice(0,2).toUpperCase(),c:'#F1EFE8',tc:'#444441'});document.getElementById('inv-em').value='';renderTeam();}
+
+function addComment(){
+  const req=document.getElementById('com-req').value.split(':')[0],type=document.getElementById('com-type').value,text=document.getElementById('com-txt').value.trim();
+  if(!text)return;comments.unshift({req,type,text,time:new Date().toLocaleTimeString()});
+  document.getElementById('com-txt').value='';
+  document.getElementById('comments').innerHTML=comments.map(c=>`<div style="padding:10px;background:var(--bg2);border-radius:var(--rm);margin-bottom:8px">
+    <div style="display:flex;gap:6px;margin-bottom:4px"><span style="font-size:12px;font-weight:500">${c.req}</span><span class="bx bi">${c.type}</span><span style="font-size:10px;color:var(--tx2);margin-left:auto">${c.time}</span></div>
+    <div style="font-size:12px">${c.text}</div>
+  </div>`).join('');
+}
+renderTeam();
+</script>
+</body></html>
